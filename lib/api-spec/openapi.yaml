@@ -3,13 +3,28 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: SkillUp LMS Portal API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User management
+  - name: courses
+    description: Course management
+  - name: enrollments
+    description: Enrollment management
+  - name: enquiries
+    description: Course enquiries (public)
+  - name: live-classes
+    description: Live class sessions
+  - name: dashboard
+    description: Dashboard statistics
+
 paths:
   /healthz:
     get:
@@ -24,6 +39,419 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin only)
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a user (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPatch"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      summary: List all courses
+      responses:
+        "200":
+          description: Courses list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+    post:
+      operationId: createCourse
+      tags: [courses]
+      summary: Create a course (admin/trainer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+
+  /courses/{id}:
+    get:
+      operationId: getCourse
+      tags: [courses]
+      summary: Get course by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateCourse
+      tags: [courses]
+      summary: Update course
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoursePatch"
+      responses:
+        "200":
+          description: Updated course
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Course"
+    delete:
+      operationId: deleteCourse
+      tags: [courses]
+      summary: Delete course
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /enrollments:
+    get:
+      operationId: listEnrollments
+      tags: [enrollments]
+      summary: List enrollments
+      responses:
+        "200":
+          description: Enrollments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Enrollment"
+    post:
+      operationId: createEnrollment
+      tags: [enrollments]
+      summary: Enroll a student in a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollmentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+
+  /enrollments/{id}:
+    delete:
+      operationId: deleteEnrollment
+      tags: [enrollments]
+      summary: Remove enrollment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /enquiries:
+    get:
+      operationId: listEnquiries
+      tags: [enquiries]
+      summary: List all enquiries (admin only)
+      responses:
+        "200":
+          description: Enquiries list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Enquiry"
+    post:
+      operationId: submitEnquiry
+      tags: [enquiries]
+      summary: Submit a course enquiry (public)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnquiryInput"
+      responses:
+        "201":
+          description: Enquiry submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnquiryResult"
+
+  /live-classes:
+    get:
+      operationId: listLiveClasses
+      tags: [live-classes]
+      summary: List live class sessions
+      responses:
+        "200":
+          description: Live classes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LiveClass"
+    post:
+      operationId: createLiveClass
+      tags: [live-classes]
+      summary: Create a live class session (admin/trainer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LiveClassInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiveClass"
+
+  /live-classes/{id}:
+    delete:
+      operationId: deleteLiveClass
+      tags: [live-classes]
+      summary: Delete live class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/recent-enquiries:
+    get:
+      operationId: getRecentEnquiries
+      tags: [dashboard]
+      summary: Get recent enquiries
+      responses:
+        "200":
+          description: Recent enquiries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Enquiry"
+
+  /dashboard/my-enrollments:
+    get:
+      operationId: getMyEnrollments
+      tags: [dashboard]
+      summary: Get current student's enrollments with course details
+      responses:
+        "200":
+          description: My enrollments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EnrollmentWithCourse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +462,277 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+        - success
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthUser:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, trainer, student]
+
+    User:
+      type: object
+      required: [id, name, email, role, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, trainer, student]
+        phone:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    UserInput:
+      type: object
+      required: [name, email, password, role]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [admin, trainer, student]
+        phone:
+          type: string
+
+    UserPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, trainer, student]
+        phone:
+          type: ["string", "null"]
+
+    Course:
+      type: object
+      required: [id, title, description, category, status, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        duration:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive]
+        trainerId:
+          type: ["integer", "null"]
+        trainerName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    CourseInput:
+      type: object
+      required: [title, description, category]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        duration:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        trainerId:
+          type: integer
+
+    CoursePatch:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        duration:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, inactive]
+        trainerId:
+          type: ["integer", "null"]
+
+    Enrollment:
+      type: object
+      required: [id, userId, courseId, enrolledAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        courseId:
+          type: integer
+        enrolledAt:
+          type: string
+
+    EnrollmentInput:
+      type: object
+      required: [userId, courseId]
+      properties:
+        userId:
+          type: integer
+        courseId:
+          type: integer
+
+    EnrollmentWithCourse:
+      type: object
+      required: [id, userId, courseId, enrolledAt, course]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        courseId:
+          type: integer
+        enrolledAt:
+          type: string
+        course:
+          $ref: "#/components/schemas/Course"
+
+    Enquiry:
+      type: object
+      required: [id, fullName, email, phone, whatsapp, course, createdAt]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        whatsapp:
+          type: string
+        course:
+          type: string
+        status:
+          type: string
+          enum: [new, contacted, enrolled]
+        createdAt:
+          type: string
+
+    EnquiryInput:
+      type: object
+      required: [fullName, email, phone, whatsapp, course]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        whatsapp:
+          type: string
+        course:
+          type: string
+
+    EnquiryResult:
+      type: object
+      required: [id, whatsappUrl]
+      properties:
+        id:
+          type: integer
+        whatsappUrl:
+          type: string
+
+    LiveClass:
+      type: object
+      required: [id, title, roomName, scheduledAt, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        roomName:
+          type: string
+        scheduledAt:
+          type: string
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    LiveClassInput:
+      type: object
+      required: [title, roomName, scheduledAt]
+      properties:
+        title:
+          type: string
+        roomName:
+          type: string
+        scheduledAt:
+          type: string
+        description:
+          type: string
+
+    DashboardStats:
+      type: object
+      required: [totalStudents, totalTrainers, totalCourses, totalEnrollments, totalEnquiries, newEnquiries]
+      properties:
+        totalStudents:
+          type: integer
+        totalTrainers:
+          type: integer
+        totalCourses:
+          type: integer
+        totalEnrollments:
+          type: integer
+        totalEnquiries:
+          type: integer
+        newEnquiries:
+          type: integer

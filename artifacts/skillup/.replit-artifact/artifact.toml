@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "SkillUp LMS Portal"
+version = "1.0.0"
+id = "artifacts/skillup"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24584
+
+[services.development]
+run = "pnpm --filter @workspace/skillup run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/skillup", "run", "build" ]
+publicDir = "artifacts/skillup/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24584"
+BASE_PATH = "/"

@@ -1,0 +1,3 @@
+- [Session auth pattern](session-auth.md) — express-session + bcryptjs (not bcrypt native), SESSION_SECRET required at startup
+- [Email non-blocking](email-nonblocking.md) — nodemailer email sends are fire-and-forget so API response isn't delayed
+- [DB lib rebuild needed](db-rebuild.md) — after adding new schema files, must run `pnpm run typecheck:libs` before api-server typecheck sees new exports

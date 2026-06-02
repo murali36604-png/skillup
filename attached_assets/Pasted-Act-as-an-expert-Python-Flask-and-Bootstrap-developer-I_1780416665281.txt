@@ -1,0 +1,26 @@
+Act as an expert Python Flask and Bootstrap developer. I have an existing role-based LMS/Student Portal project running on Replit that already has working Authentication and Dashboards for Admin, Trainer, and Student roles. 
+
+CRITICAL REQUIREMENT: Do NOT delete, overwrite, or break any of the existing authentication logic, login routes, session management, or database structures for Admin, Trainer, and Student. All existing functionalities must remain 100% intact and working.
+
+I want to safely integrate new features into this existing architecture. Please update the project with the following requirements:
+
+1. Rebranding & UI:
+   - Change the display name/brand from "LMS Portal" or "StudentGig" to "SkillUp" across sidebars, headers, and templates, while keeping the underlying role-based layouts safe.
+
+2. Public User Course Enquiry Form (New Route):
+   - Add a public route (e.g., `/enquiry` or accessible on the landing page) for general visitors who are not logged in.
+   - This page should display available courses (Python Programming, Web Development, Data Entry) and a form collecting: Full Name, Email, Phone Number, and WhatsApp Number.
+
+3. Email Integration (Flask-Mail):
+   - Upon form submission, use Flask-Mail to send the enquiry details (Name, Email, Phone, WhatsApp, Selected Course) to: mstechsolutions91@gmail.com
+   - Use environment variables (Replit Secrets) like MAIL_USERNAME and MAIL_PASSWORD for email configurations.
+
+4. WhatsApp Redirect Integration:
+   - After the email is triggered, automatically redirect the user to WhatsApp via: https://wa.me/919704849209
+   - Pass a URL-encoded pre-filled message with their submitted details (e.g., "Hi, I am [Name]. I am interested in the [Course] course...").
+
+5. Live Video Meetings (New Section):
+   - Add a dedicated "Live Classes" page/tab inside the existing logged-in dashboards (or as a shared view).
+   - Embed a free Jitsi Meet Iframe using the room name "SkillUp_Live_Classroom_Murali" so users can join live video meetings directly inside the portal (like Zoom/Meet).
+
+Review the existing routing file (app.py) and templates carefully. Add these features as new routes and code blocks without altering the core logic of the pre-existing login roles. Provide the updated code.
