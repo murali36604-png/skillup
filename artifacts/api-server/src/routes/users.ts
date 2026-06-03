@@ -12,11 +12,39 @@ import {
 
 const router: IRouter = Router();
 
-router.get("/users", async (req, res): Promise<void> => {
+/** Verify the session belongs to a logged-in admin. Returns the user or null. */
+async function requireAdmin(req: any, res: any): Promise<typeof usersTable.$inferSelect | null> {
   if (!req.session.userId) {
     res.status(401).json({ error: "Not authenticated" });
-    return;
+    return null;
   }
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.session.userId));
+  if (!user) {
+    res.status(401).json({ error: "Not authenticated" });
+    return null;
+  }
+  if (user.role !== "admin") {
+    res.status(403).json({ error: "Access Denied: Only Admin can perform this action" });
+    return null;
+  }
+  return user;
+}
+
+function serializeUser(u: typeof usersTable.$inferSelect) {
+  return {
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    phone: u.phone,
+    createdAt: u.createdAt.toISOString(),
+  };
+}
+
+// List all users — admin only
+router.get("/users", async (req, res): Promise<void> => {
+  const admin = await requireAdmin(req, res);
+  if (!admin) return;
 
   const users = await db.select({
     id: usersTable.id,
@@ -30,11 +58,10 @@ router.get("/users", async (req, res): Promise<void> => {
   res.json(users.map(u => ({ ...u, createdAt: u.createdAt.toISOString() })));
 });
 
+// Create user — admin only
 router.post("/users", async (req, res): Promise<void> => {
-  if (!req.session.userId) {
-    res.status(401).json({ error: "Not authenticated" });
-    return;
-  }
+  const admin = await requireAdmin(req, res);
+  if (!admin) return;
 
   const parsed = CreateUserBody.safeParse(req.body);
   if (!parsed.success) {
@@ -46,17 +73,15 @@ router.post("/users", async (req, res): Promise<void> => {
   const passwordHash = await bcrypt.hash(password, 10);
 
   const [user] = await db.insert(usersTable).values({ ...rest, passwordHash }).returning();
-  res.status(201).json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    phone: user.phone,
-    createdAt: user.createdAt.toISOString(),
-  });
+  req.log.info({ createdBy: admin.id, newUserId: user.id, role: user.role }, "Admin created user");
+  res.status(201).json(serializeUser(user));
 });
 
+// Get single user — admin only
 router.get("/users/:id", async (req, res): Promise<void> => {
+  const admin = await requireAdmin(req, res);
+  if (!admin) return;
+
   const params = GetUserParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -69,17 +94,14 @@ router.get("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    phone: user.phone,
-    createdAt: user.createdAt.toISOString(),
-  });
+  res.json(serializeUser(user));
 });
 
+// Update user — admin only
 router.patch("/users/:id", async (req, res): Promise<void> => {
+  const admin = await requireAdmin(req, res);
+  if (!admin) return;
+
   const params = UpdateUserParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -92,30 +114,40 @@ router.patch("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const [user] = await db.update(usersTable).set(parsed.data).where(eq(usersTable.id, params.data.id)).returning();
+  const [user] = await db
+    .update(usersTable)
+    .set(parsed.data)
+    .where(eq(usersTable.id, params.data.id))
+    .returning();
+
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
   }
 
-  res.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    phone: user.phone,
-    createdAt: user.createdAt.toISOString(),
-  });
+  req.log.info({ updatedBy: admin.id, userId: user.id }, "Admin updated user");
+  res.json(serializeUser(user));
 });
 
+// Delete user — admin only
 router.delete("/users/:id", async (req, res): Promise<void> => {
+  const admin = await requireAdmin(req, res);
+  if (!admin) return;
+
   const params = DeleteUserParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
 
+  // Prevent admin from deleting themselves
+  if (params.data.id === admin.id) {
+    res.status(400).json({ error: "You cannot delete your own account" });
+    return;
+  }
+
   await db.delete(usersTable).where(eq(usersTable.id, params.data.id));
+  req.log.info({ deletedBy: admin.id, userId: params.data.id }, "Admin deleted user");
   res.sendStatus(204);
 });
 

@@ -20,7 +20,6 @@ import { AdminLiveClassesPage } from "@/pages/admin/live-classes";
 import { TrainerDashboardPage } from "@/pages/trainer/dashboard";
 import { TrainerCoursesPage } from "@/pages/trainer/courses";
 import { TrainerStudentsPage } from "@/pages/trainer/students";
-// Trainer shares AdminLiveClassesPage
 import { StudentDashboardPage } from "@/pages/student/dashboard";
 import { StudentCoursesPage } from "@/pages/student/courses";
 import { StudentMyCoursesPage } from "@/pages/student/my-courses";
@@ -28,18 +27,51 @@ import { StudentLiveClassesPage } from "@/pages/student/live-classes";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ component: Component, allowedRole }: { component: any, allowedRole: string }) {
+function ProtectedRoute({
+  component: Component,
+  allowedRole,
+  adminOnly,
+}: {
+  component: any;
+  allowedRole: string;
+  adminOnly?: boolean;
+}) {
   const { user, isLoading } = useAuth();
-  
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center font-medium text-muted-foreground animate-pulse">Loading Application...</div>;
-  if (!user) return <Redirect to="/login" />;
-  if (user.role !== allowedRole) return <Redirect to={`/${user.role}`} />;
-  
-  return <DashboardLayout><Component /></DashboardLayout>;
+
+  if (isLoading)
+    return (
+      <div className="min-h-screen flex items-center justify-center font-medium text-muted-foreground animate-pulse">
+        Loading Application...
+      </div>
+    );
+
+  if (!user) {
+    // If the route requires admin, signal access denied on the login page
+    const dest = adminOnly ? "/login?error=access_denied" : "/login";
+    return <Redirect to={dest} />;
+  }
+
+  if (user.role !== allowedRole) {
+    // A non-admin trying to reach an admin page → access denied message
+    if (adminOnly && user.role !== "admin") {
+      return <Redirect to="/login?error=access_denied" />;
+    }
+    return <Redirect to={`/${user.role}`} />;
+  }
+
+  return (
+    <DashboardLayout>
+      <Component />
+    </DashboardLayout>
+  );
 }
 
 function PublicRoute({ component: Component }: { component: any }) {
-  return <PublicLayout><Component /></PublicLayout>;
+  return (
+    <PublicLayout>
+      <Component />
+    </PublicLayout>
+  );
 }
 
 function Router() {
@@ -49,13 +81,13 @@ function Router() {
       <Route path="/login" component={() => <PublicRoute component={LoginPage} />} />
       <Route path="/enquiry" component={() => <PublicRoute component={EnquiryPage} />} />
 
-      {/* Admin Routes */}
-      <Route path="/admin" component={() => <ProtectedRoute component={AdminDashboardPage} allowedRole="admin" />} />
-      <Route path="/admin/users" component={() => <ProtectedRoute component={AdminUsersPage} allowedRole="admin" />} />
-      <Route path="/admin/courses" component={() => <ProtectedRoute component={AdminCoursesPage} allowedRole="admin" />} />
-      <Route path="/admin/enrollments" component={() => <ProtectedRoute component={AdminEnrollmentsPage} allowedRole="admin" />} />
-      <Route path="/admin/enquiries" component={() => <ProtectedRoute component={AdminEnquiriesPage} allowedRole="admin" />} />
-      <Route path="/admin/live-classes" component={() => <ProtectedRoute component={AdminLiveClassesPage} allowedRole="admin" />} />
+      {/* Admin Routes — adminOnly enforces the access-denied redirect */}
+      <Route path="/admin" component={() => <ProtectedRoute component={AdminDashboardPage} allowedRole="admin" adminOnly />} />
+      <Route path="/admin/users" component={() => <ProtectedRoute component={AdminUsersPage} allowedRole="admin" adminOnly />} />
+      <Route path="/admin/courses" component={() => <ProtectedRoute component={AdminCoursesPage} allowedRole="admin" adminOnly />} />
+      <Route path="/admin/enrollments" component={() => <ProtectedRoute component={AdminEnrollmentsPage} allowedRole="admin" adminOnly />} />
+      <Route path="/admin/enquiries" component={() => <ProtectedRoute component={AdminEnquiriesPage} allowedRole="admin" adminOnly />} />
+      <Route path="/admin/live-classes" component={() => <ProtectedRoute component={AdminLiveClassesPage} allowedRole="admin" adminOnly />} />
 
       {/* Trainer Routes */}
       <Route path="/trainer" component={() => <ProtectedRoute component={TrainerDashboardPage} allowedRole="trainer" />} />
@@ -69,7 +101,14 @@ function Router() {
       <Route path="/student/my-courses" component={() => <ProtectedRoute component={StudentMyCoursesPage} allowedRole="student" />} />
       <Route path="/student/live-classes" component={() => <ProtectedRoute component={StudentLiveClassesPage} allowedRole="student" />} />
 
-      <Route component={() => <div className="p-8 text-center text-xl text-muted-foreground font-medium flex flex-col items-center justify-center min-h-[50vh]"><h2 className="text-4xl font-bold text-foreground mb-4">404</h2><p>Page Not Found</p></div>} />
+      <Route
+        component={() => (
+          <div className="p-8 text-center text-xl text-muted-foreground font-medium flex flex-col items-center justify-center min-h-[50vh]">
+            <h2 className="text-4xl font-bold text-foreground mb-4">404</h2>
+            <p>Page Not Found</p>
+          </div>
+        )}
+      />
     </Switch>
   );
 }

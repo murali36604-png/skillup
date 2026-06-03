@@ -67,8 +67,9 @@ export function AdminEnrollmentsPage() {
     }
   };
 
-  // Create a map to quickly look up student names
+  // Create maps to quickly look up student names and course titles
   const studentMap = new Map(students.map(s => [s.id, s.name]));
+  const courseMap = new Map((courses || []).map(c => [c.id, c.title]));
 
   return (
     <div className="p-8 space-y-6">
@@ -147,7 +148,7 @@ export function AdminEnrollmentsPage() {
               enrollments?.map((enrollment) => (
                 <TableRow key={enrollment.id}>
                   <TableCell className="font-medium">{studentMap.get(enrollment.userId) || `Student #${enrollment.userId}`}</TableCell>
-                  <TableCell>{enrollment.course.title}</TableCell>
+                  <TableCell>{courseMap.get(enrollment.courseId) || `Course #${enrollment.courseId}`}</TableCell>
                   <TableCell>{new Date(enrollment.enrolledAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(enrollment.id)}>
