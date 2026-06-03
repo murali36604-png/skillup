@@ -9,7 +9,6 @@ import * as zod from 'zod';
 
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
@@ -29,7 +28,19 @@ export const LoginResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "email": zod.string(),
-  "role": zod.enum(['admin', 'trainer', 'student'])
+  "role": zod.enum(['admin', 'trainer', 'student', 'freelancer', 'client'])
+})
+
+
+/**
+ * @summary Register a new freelancer or client account
+ */
+export const RegisterBody = zod.object({
+  "name": zod.string(),
+  "email": zod.string(),
+  "password": zod.string(),
+  "role": zod.enum(['freelancer', 'client']),
+  "phone": zod.string().optional()
 })
 
 
@@ -48,7 +59,7 @@ export const GetMeResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "email": zod.string(),
-  "role": zod.enum(['admin', 'trainer', 'student'])
+  "role": zod.enum(['admin', 'trainer', 'student', 'freelancer', 'client'])
 })
 
 
@@ -59,7 +70,7 @@ export const ListUsersResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "email": zod.string(),
-  "role": zod.enum(['admin', 'trainer', 'student']),
+  "role": zod.enum(['admin', 'trainer', 'student', 'freelancer', 'client']),
   "phone": zod.string().nullish(),
   "createdAt": zod.string()
 })
@@ -73,7 +84,7 @@ export const CreateUserBody = zod.object({
   "name": zod.string(),
   "email": zod.string(),
   "password": zod.string(),
-  "role": zod.enum(['admin', 'trainer', 'student']),
+  "role": zod.enum(['admin', 'trainer', 'student', 'freelancer', 'client']),
   "phone": zod.string().optional()
 })
 
@@ -89,7 +100,7 @@ export const GetUserResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "email": zod.string(),
-  "role": zod.enum(['admin', 'trainer', 'student']),
+  "role": zod.enum(['admin', 'trainer', 'student', 'freelancer', 'client']),
   "phone": zod.string().nullish(),
   "createdAt": zod.string()
 })
@@ -105,7 +116,7 @@ export const UpdateUserParams = zod.object({
 export const UpdateUserBody = zod.object({
   "name": zod.string().optional(),
   "email": zod.string().optional(),
-  "role": zod.enum(['admin', 'trainer', 'student']).optional(),
+  "role": zod.enum(['admin', 'trainer', 'student', 'freelancer', 'client']).optional(),
   "phone": zod.string().nullish()
 })
 
@@ -113,7 +124,7 @@ export const UpdateUserResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
   "email": zod.string(),
-  "role": zod.enum(['admin', 'trainer', 'student']),
+  "role": zod.enum(['admin', 'trainer', 'student', 'freelancer', 'client']),
   "phone": zod.string().nullish(),
   "createdAt": zod.string()
 })
@@ -354,5 +365,305 @@ export const GetMyEnrollmentsResponseItem = zod.object({
 })
 })
 export const GetMyEnrollmentsResponse = zod.array(GetMyEnrollmentsResponseItem)
+
+
+/**
+ * @summary Get my freelancer profile
+ */
+export const GetFreelancerProfileResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "title": zod.string().nullish(),
+  "bio": zod.string().nullish(),
+  "skills": zod.string().nullish(),
+  "hourlyRate": zod.number().nullish(),
+  "location": zod.string().nullish(),
+  "portfolioUrl": zod.string().nullish(),
+  "availability": zod.enum(['available', 'busy', 'unavailable']).optional()
+})
+
+
+/**
+ * @summary Create or update my freelancer profile
+ */
+export const UpsertFreelancerProfileBody = zod.object({
+  "title": zod.string().optional(),
+  "bio": zod.string().optional(),
+  "skills": zod.string().optional(),
+  "hourlyRate": zod.number().optional(),
+  "location": zod.string().optional(),
+  "portfolioUrl": zod.string().optional(),
+  "availability": zod.enum(['available', 'busy', 'unavailable']).optional()
+})
+
+export const UpsertFreelancerProfileResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "title": zod.string().nullish(),
+  "bio": zod.string().nullish(),
+  "skills": zod.string().nullish(),
+  "hourlyRate": zod.number().nullish(),
+  "location": zod.string().nullish(),
+  "portfolioUrl": zod.string().nullish(),
+  "availability": zod.enum(['available', 'busy', 'unavailable']).optional()
+})
+
+
+/**
+ * @summary Get my bank details
+ */
+export const GetBankDetailsResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "accountHolder": zod.string(),
+  "accountNumber": zod.string(),
+  "ifscCode": zod.string(),
+  "bankName": zod.string(),
+  "branch": zod.string().nullish(),
+  "upiId": zod.string().nullish()
+})
+
+
+/**
+ * @summary Create or update my bank details
+ */
+export const UpsertBankDetailsBody = zod.object({
+  "accountHolder": zod.string(),
+  "accountNumber": zod.string(),
+  "ifscCode": zod.string(),
+  "bankName": zod.string(),
+  "branch": zod.string().optional(),
+  "upiId": zod.string().optional()
+})
+
+export const UpsertBankDetailsResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "accountHolder": zod.string(),
+  "accountNumber": zod.string(),
+  "ifscCode": zod.string(),
+  "bankName": zod.string(),
+  "branch": zod.string().nullish(),
+  "upiId": zod.string().nullish()
+})
+
+
+/**
+ * @summary Get my submitted bids (freelancer)
+ */
+export const GetMyBidsResponseItem = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "freelancerId": zod.number(),
+  "amount": zod.number(),
+  "duration": zod.string().nullish(),
+  "coverLetter": zod.string().nullish(),
+  "status": zod.enum(['pending', 'accepted', 'rejected']),
+  "projectTitle": zod.string().optional(),
+  "projectCategory": zod.string().optional(),
+  "projectStatus": zod.string().optional(),
+  "createdAt": zod.string()
+})
+export const GetMyBidsResponse = zod.array(GetMyBidsResponseItem)
+
+
+/**
+ * @summary Browse freelancers (public)
+ */
+export const ListFreelancersResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "title": zod.string().nullish(),
+  "bio": zod.string().nullish(),
+  "skills": zod.string().nullish(),
+  "hourlyRate": zod.number().nullish(),
+  "location": zod.string().nullish(),
+  "availability": zod.string().nullish()
+})
+export const ListFreelancersResponse = zod.array(ListFreelancersResponseItem)
+
+
+/**
+ * @summary List all open projects (public)
+ */
+export const ListProjectsResponseItem = zod.object({
+  "id": zod.number(),
+  "clientId": zod.number(),
+  "clientName": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "skillsRequired": zod.string().nullish(),
+  "budgetMin": zod.number().nullish(),
+  "budgetMax": zod.number().nullish(),
+  "deadline": zod.string().nullish(),
+  "status": zod.enum(['open', 'in_progress', 'completed', 'cancelled']),
+  "bidCount": zod.number().optional(),
+  "createdAt": zod.string()
+})
+export const ListProjectsResponse = zod.array(ListProjectsResponseItem)
+
+
+/**
+ * @summary Post a new project (client only)
+ */
+export const CreateProjectBody = zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "skillsRequired": zod.string().optional(),
+  "budgetMin": zod.number().optional(),
+  "budgetMax": zod.number().optional(),
+  "deadline": zod.string().optional()
+})
+
+
+/**
+ * @summary Get my posted projects (client)
+ */
+export const GetMyProjectsResponseItem = zod.object({
+  "id": zod.number(),
+  "clientId": zod.number(),
+  "clientName": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "skillsRequired": zod.string().nullish(),
+  "budgetMin": zod.number().nullish(),
+  "budgetMax": zod.number().nullish(),
+  "deadline": zod.string().nullish(),
+  "status": zod.enum(['open', 'in_progress', 'completed', 'cancelled']),
+  "bidCount": zod.number().optional(),
+  "createdAt": zod.string()
+})
+export const GetMyProjectsResponse = zod.array(GetMyProjectsResponseItem)
+
+
+/**
+ * @summary Get project by ID
+ */
+export const GetProjectParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetProjectResponse = zod.object({
+  "id": zod.number(),
+  "clientId": zod.number(),
+  "clientName": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "skillsRequired": zod.string().nullish(),
+  "budgetMin": zod.number().nullish(),
+  "budgetMax": zod.number().nullish(),
+  "deadline": zod.string().nullish(),
+  "status": zod.enum(['open', 'in_progress', 'completed', 'cancelled']),
+  "bidCount": zod.number().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update project (client only)
+ */
+export const UpdateProjectParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateProjectBody = zod.object({
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "category": zod.string().optional(),
+  "skillsRequired": zod.string().optional(),
+  "budgetMin": zod.number().optional(),
+  "budgetMax": zod.number().optional(),
+  "deadline": zod.string().optional(),
+  "status": zod.enum(['open', 'in_progress', 'completed', 'cancelled']).optional()
+})
+
+export const UpdateProjectResponse = zod.object({
+  "id": zod.number(),
+  "clientId": zod.number(),
+  "clientName": zod.string().nullish(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "skillsRequired": zod.string().nullish(),
+  "budgetMin": zod.number().nullish(),
+  "budgetMax": zod.number().nullish(),
+  "deadline": zod.string().nullish(),
+  "status": zod.enum(['open', 'in_progress', 'completed', 'cancelled']),
+  "bidCount": zod.number().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete project (client only)
+ */
+export const DeleteProjectParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary List bids on a project
+ */
+export const GetProjectBidsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetProjectBidsResponseItem = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "freelancerId": zod.number(),
+  "freelancerName": zod.string().optional(),
+  "freelancerEmail": zod.string().optional(),
+  "freelancerTitle": zod.string().nullish(),
+  "amount": zod.number(),
+  "duration": zod.string().nullish(),
+  "coverLetter": zod.string().nullish(),
+  "status": zod.enum(['pending', 'accepted', 'rejected']),
+  "createdAt": zod.string()
+})
+export const GetProjectBidsResponse = zod.array(GetProjectBidsResponseItem)
+
+
+/**
+ * @summary Submit a bid on a project (freelancer only)
+ */
+export const SubmitBidParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SubmitBidBody = zod.object({
+  "amount": zod.number(),
+  "duration": zod.string().optional(),
+  "coverLetter": zod.string().optional()
+})
+
+
+/**
+ * @summary Accept or reject a bid (client only)
+ */
+export const UpdateBidParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateBidBody = zod.object({
+  "status": zod.enum(['accepted', 'rejected'])
+})
+
+export const UpdateBidResponse = zod.object({
+  "id": zod.number(),
+  "projectId": zod.number(),
+  "freelancerId": zod.number(),
+  "amount": zod.number(),
+  "duration": zod.string().nullish(),
+  "coverLetter": zod.string().nullish(),
+  "status": zod.enum(['pending', 'accepted', 'rejected']),
+  "createdAt": zod.string()
+})
 
 

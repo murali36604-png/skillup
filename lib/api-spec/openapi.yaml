@@ -24,6 +24,10 @@ tags:
     description: Live class sessions
   - name: dashboard
     description: Dashboard statistics
+  - name: freelancer
+    description: Freelancer marketplace
+  - name: projects
+    description: Project management
 
 paths:
   /healthz:
@@ -31,7 +35,6 @@ paths:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -60,6 +63,31 @@ paths:
                 $ref: "#/components/schemas/AuthUser"
         "401":
           description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new freelancer or client account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered and logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "400":
+          description: Validation error or email already taken
           content:
             application/json:
               schema:
@@ -452,6 +480,269 @@ paths:
                 items:
                   $ref: "#/components/schemas/EnrollmentWithCourse"
 
+  # ── Freelancer Marketplace ──────────────────────────────────────────────────
+
+  /freelancer/profile:
+    get:
+      operationId: getFreelancerProfile
+      tags: [freelancer]
+      summary: Get my freelancer profile
+      responses:
+        "200":
+          description: Freelancer profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelancerProfile"
+    put:
+      operationId: upsertFreelancerProfile
+      tags: [freelancer]
+      summary: Create or update my freelancer profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FreelancerProfileInput"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelancerProfile"
+
+  /freelancer/bank-details:
+    get:
+      operationId: getBankDetails
+      tags: [freelancer]
+      summary: Get my bank details
+      responses:
+        "200":
+          description: Bank details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BankDetails"
+    put:
+      operationId: upsertBankDetails
+      tags: [freelancer]
+      summary: Create or update my bank details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankDetailsInput"
+      responses:
+        "200":
+          description: Updated bank details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BankDetails"
+
+  /freelancer/my-bids:
+    get:
+      operationId: getMyBids
+      tags: [freelancer]
+      summary: Get my submitted bids (freelancer)
+      responses:
+        "200":
+          description: My bids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BidWithProject"
+
+  /freelancers:
+    get:
+      operationId: listFreelancers
+      tags: [freelancer]
+      summary: Browse freelancers (public)
+      responses:
+        "200":
+          description: Freelancers list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FreelancerPublic"
+
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      summary: List all open projects (public)
+      responses:
+        "200":
+          description: Projects list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      summary: Post a new project (client only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /projects/my:
+    get:
+      operationId: getMyProjects
+      tags: [projects]
+      summary: Get my posted projects (client)
+      responses:
+        "200":
+          description: My projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      summary: Get project by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      summary: Update project (client only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectPatch"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      summary: Delete project (client only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{id}/bids:
+    get:
+      operationId: getProjectBids
+      tags: [projects]
+      summary: List bids on a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Bids list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BidWithFreelancer"
+    post:
+      operationId: submitBid
+      tags: [projects]
+      summary: Submit a bid on a project (freelancer only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BidInput"
+      responses:
+        "201":
+          description: Bid submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+
+  /bids/{id}:
+    patch:
+      operationId: updateBid
+      tags: [projects]
+      summary: Accept or reject a bid (client only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BidPatch"
+      responses:
+        "200":
+          description: Updated bid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+
 components:
   schemas:
     HealthStatus:
@@ -487,6 +778,22 @@ components:
         password:
           type: string
 
+    RegisterInput:
+      type: object
+      required: [name, email, password, role]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [freelancer, client]
+        phone:
+          type: string
+
     AuthUser:
       type: object
       required: [id, name, email, role]
@@ -499,7 +806,7 @@ components:
           type: string
         role:
           type: string
-          enum: [admin, trainer, student]
+          enum: [admin, trainer, student, freelancer, client]
 
     User:
       type: object
@@ -513,7 +820,7 @@ components:
           type: string
         role:
           type: string
-          enum: [admin, trainer, student]
+          enum: [admin, trainer, student, freelancer, client]
         phone:
           type: ["string", "null"]
         createdAt:
@@ -531,7 +838,7 @@ components:
           type: string
         role:
           type: string
-          enum: [admin, trainer, student]
+          enum: [admin, trainer, student, freelancer, client]
         phone:
           type: string
 
@@ -544,7 +851,7 @@ components:
           type: string
         role:
           type: string
-          enum: [admin, trainer, student]
+          enum: [admin, trainer, student, freelancer, client]
         phone:
           type: ["string", "null"]
 
@@ -736,3 +1043,278 @@ components:
           type: integer
         newEnquiries:
           type: integer
+
+    # ── Freelancer Marketplace Schemas ────────────────────────────────────────
+
+    FreelancerProfile:
+      type: object
+      required: [id, userId]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        skills:
+          type: ["string", "null"]
+        hourlyRate:
+          type: ["number", "null"]
+        location:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+        availability:
+          type: string
+          enum: [available, busy, unavailable]
+
+    FreelancerProfileInput:
+      type: object
+      properties:
+        title:
+          type: string
+        bio:
+          type: string
+        skills:
+          type: string
+        hourlyRate:
+          type: number
+        location:
+          type: string
+        portfolioUrl:
+          type: string
+        availability:
+          type: string
+          enum: [available, busy, unavailable]
+
+    FreelancerPublic:
+      type: object
+      required: [id, name, email]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        title:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        skills:
+          type: ["string", "null"]
+        hourlyRate:
+          type: ["number", "null"]
+        location:
+          type: ["string", "null"]
+        availability:
+          type: ["string", "null"]
+
+    BankDetails:
+      type: object
+      required: [id, userId, accountHolder, accountNumber, ifscCode, bankName]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        accountHolder:
+          type: string
+        accountNumber:
+          type: string
+        ifscCode:
+          type: string
+        bankName:
+          type: string
+        branch:
+          type: ["string", "null"]
+        upiId:
+          type: ["string", "null"]
+
+    BankDetailsInput:
+      type: object
+      required: [accountHolder, accountNumber, ifscCode, bankName]
+      properties:
+        accountHolder:
+          type: string
+        accountNumber:
+          type: string
+        ifscCode:
+          type: string
+        bankName:
+          type: string
+        branch:
+          type: string
+        upiId:
+          type: string
+
+    Project:
+      type: object
+      required: [id, clientId, title, description, category, status, createdAt]
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: ["string", "null"]
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        skillsRequired:
+          type: ["string", "null"]
+        budgetMin:
+          type: ["number", "null"]
+        budgetMax:
+          type: ["number", "null"]
+        deadline:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [open, in_progress, completed, cancelled]
+        bidCount:
+          type: integer
+        createdAt:
+          type: string
+
+    ProjectInput:
+      type: object
+      required: [title, description, category]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        skillsRequired:
+          type: string
+        budgetMin:
+          type: number
+        budgetMax:
+          type: number
+        deadline:
+          type: string
+
+    ProjectPatch:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        skillsRequired:
+          type: string
+        budgetMin:
+          type: number
+        budgetMax:
+          type: number
+        deadline:
+          type: string
+        status:
+          type: string
+          enum: [open, in_progress, completed, cancelled]
+
+    Bid:
+      type: object
+      required: [id, projectId, freelancerId, amount, status, createdAt]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        freelancerId:
+          type: integer
+        amount:
+          type: number
+        duration:
+          type: ["string", "null"]
+        coverLetter:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        createdAt:
+          type: string
+
+    BidInput:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+        duration:
+          type: string
+        coverLetter:
+          type: string
+
+    BidPatch:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected]
+
+    BidWithFreelancer:
+      type: object
+      required: [id, projectId, freelancerId, amount, status, createdAt]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        freelancerId:
+          type: integer
+        freelancerName:
+          type: string
+        freelancerEmail:
+          type: string
+        freelancerTitle:
+          type: ["string", "null"]
+        amount:
+          type: number
+        duration:
+          type: ["string", "null"]
+        coverLetter:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        createdAt:
+          type: string
+
+    BidWithProject:
+      type: object
+      required: [id, projectId, freelancerId, amount, status, createdAt]
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        freelancerId:
+          type: integer
+        amount:
+          type: number
+        duration:
+          type: ["string", "null"]
+        coverLetter:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        projectTitle:
+          type: string
+        projectCategory:
+          type: string
+        projectStatus:
+          type: string
+        createdAt:
+          type: string

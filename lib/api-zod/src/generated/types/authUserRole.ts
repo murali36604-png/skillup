@@ -13,4 +13,6 @@ export const AuthUserRole = {
   admin: 'admin',
   trainer: 'trainer',
   student: 'student',
+  freelancer: 'freelancer',
+  client: 'client',
 } as const;

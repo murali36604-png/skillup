@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useLogin, getGetMeQueryKey } from "@workspace/api-client-react";
-import { useLocation, useSearch } from "wouter";
+import { useLocation, useSearch, Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,29 +30,17 @@ export function LoginPage() {
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       const user = await loginMutation.mutateAsync({ data: values });
       queryClient.setQueryData(getGetMeQueryKey(), user);
-
-      toast({
-        title: "Welcome back!",
-        description: `Logged in as ${user.name}`,
-      });
-
+      toast({ title: "Welcome back!", description: `Logged in as ${user.name}` });
       setLocation(`/${user.role}`);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Login failed",
-        description: error?.message || "Please check your credentials and try again.",
-      });
+      toast({ variant: "destructive", title: "Login failed", description: error?.message || "Please check your credentials and try again." });
     }
   };
 
@@ -81,41 +69,36 @@ export function LoginPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="name@example.com" className="h-11" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground">Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" className="h-11" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full h-11 text-base font-semibold"
-                  disabled={loginMutation.isPending}
-                >
+                <FormField control={form.control} name="email" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl><Input placeholder="name@example.com" className="h-11" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="password" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl><Input type="password" placeholder="••••••••" className="h-11" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loginMutation.isPending}>
                   {loginMutation.isPending ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </Form>
+
+            <div className="mt-4 text-center space-y-2">
+              <p className="text-sm text-muted-foreground">
+                New to SkillUp?{" "}
+                <Link href="/signup" className="text-primary font-semibold hover:underline">Create an account</Link>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Freelancers & Clients sign up{" "}
+                <Link href="/signup" className="text-orange-500 font-semibold hover:underline">here</Link>
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

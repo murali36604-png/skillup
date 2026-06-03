@@ -6,13 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type UserPatchRole = typeof UserPatchRole[keyof typeof UserPatchRole];
+export type RegisterInputRole = typeof RegisterInputRole[keyof typeof RegisterInputRole];
 
 
-export const UserPatchRole = {
-  admin: 'admin',
-  trainer: 'trainer',
-  student: 'student',
+export const RegisterInputRole = {
   freelancer: 'freelancer',
   client: 'client',
 } as const;

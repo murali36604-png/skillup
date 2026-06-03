@@ -22,6 +22,22 @@ export interface LoginInput {
   password: string;
 }
 
+export type RegisterInputRole = typeof RegisterInputRole[keyof typeof RegisterInputRole];
+
+
+export const RegisterInputRole = {
+  freelancer: 'freelancer',
+  client: 'client',
+} as const;
+
+export interface RegisterInput {
+  name: string;
+  email: string;
+  password: string;
+  role: RegisterInputRole;
+  phone?: string;
+}
+
 export type AuthUserRole = typeof AuthUserRole[keyof typeof AuthUserRole];
 
 
@@ -29,6 +45,8 @@ export const AuthUserRole = {
   admin: 'admin',
   trainer: 'trainer',
   student: 'student',
+  freelancer: 'freelancer',
+  client: 'client',
 } as const;
 
 export interface AuthUser {
@@ -45,6 +63,8 @@ export const UserRole = {
   admin: 'admin',
   trainer: 'trainer',
   student: 'student',
+  freelancer: 'freelancer',
+  client: 'client',
 } as const;
 
 export interface User {
@@ -64,6 +84,8 @@ export const UserInputRole = {
   admin: 'admin',
   trainer: 'trainer',
   student: 'student',
+  freelancer: 'freelancer',
+  client: 'client',
 } as const;
 
 export interface UserInput {
@@ -81,6 +103,8 @@ export const UserPatchRole = {
   admin: 'admin',
   trainer: 'trainer',
   student: 'student',
+  freelancer: 'freelancer',
+  client: 'client',
 } as const;
 
 export interface UserPatch {
@@ -227,5 +251,244 @@ export interface DashboardStats {
   totalEnrollments: number;
   totalEnquiries: number;
   newEnquiries: number;
+}
+
+export type FreelancerProfileAvailability = typeof FreelancerProfileAvailability[keyof typeof FreelancerProfileAvailability];
+
+
+export const FreelancerProfileAvailability = {
+  available: 'available',
+  busy: 'busy',
+  unavailable: 'unavailable',
+} as const;
+
+export interface FreelancerProfile {
+  id: number;
+  userId: number;
+  /** @nullable */
+  title?: string | null;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  skills?: string | null;
+  /** @nullable */
+  hourlyRate?: number | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  portfolioUrl?: string | null;
+  availability?: FreelancerProfileAvailability;
+}
+
+export type FreelancerProfileInputAvailability = typeof FreelancerProfileInputAvailability[keyof typeof FreelancerProfileInputAvailability];
+
+
+export const FreelancerProfileInputAvailability = {
+  available: 'available',
+  busy: 'busy',
+  unavailable: 'unavailable',
+} as const;
+
+export interface FreelancerProfileInput {
+  title?: string;
+  bio?: string;
+  skills?: string;
+  hourlyRate?: number;
+  location?: string;
+  portfolioUrl?: string;
+  availability?: FreelancerProfileInputAvailability;
+}
+
+export interface FreelancerPublic {
+  id: number;
+  name: string;
+  email: string;
+  /** @nullable */
+  title?: string | null;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  skills?: string | null;
+  /** @nullable */
+  hourlyRate?: number | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  availability?: string | null;
+}
+
+export interface BankDetails {
+  id: number;
+  userId: number;
+  accountHolder: string;
+  accountNumber: string;
+  ifscCode: string;
+  bankName: string;
+  /** @nullable */
+  branch?: string | null;
+  /** @nullable */
+  upiId?: string | null;
+}
+
+export interface BankDetailsInput {
+  accountHolder: string;
+  accountNumber: string;
+  ifscCode: string;
+  bankName: string;
+  branch?: string;
+  upiId?: string;
+}
+
+export type ProjectStatus = typeof ProjectStatus[keyof typeof ProjectStatus];
+
+
+export const ProjectStatus = {
+  open: 'open',
+  in_progress: 'in_progress',
+  completed: 'completed',
+  cancelled: 'cancelled',
+} as const;
+
+export interface Project {
+  id: number;
+  clientId: number;
+  /** @nullable */
+  clientName?: string | null;
+  title: string;
+  description: string;
+  category: string;
+  /** @nullable */
+  skillsRequired?: string | null;
+  /** @nullable */
+  budgetMin?: number | null;
+  /** @nullable */
+  budgetMax?: number | null;
+  /** @nullable */
+  deadline?: string | null;
+  status: ProjectStatus;
+  bidCount?: number;
+  createdAt: string;
+}
+
+export interface ProjectInput {
+  title: string;
+  description: string;
+  category: string;
+  skillsRequired?: string;
+  budgetMin?: number;
+  budgetMax?: number;
+  deadline?: string;
+}
+
+export type ProjectPatchStatus = typeof ProjectPatchStatus[keyof typeof ProjectPatchStatus];
+
+
+export const ProjectPatchStatus = {
+  open: 'open',
+  in_progress: 'in_progress',
+  completed: 'completed',
+  cancelled: 'cancelled',
+} as const;
+
+export interface ProjectPatch {
+  title?: string;
+  description?: string;
+  category?: string;
+  skillsRequired?: string;
+  budgetMin?: number;
+  budgetMax?: number;
+  deadline?: string;
+  status?: ProjectPatchStatus;
+}
+
+export type BidStatus = typeof BidStatus[keyof typeof BidStatus];
+
+
+export const BidStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  rejected: 'rejected',
+} as const;
+
+export interface Bid {
+  id: number;
+  projectId: number;
+  freelancerId: number;
+  amount: number;
+  /** @nullable */
+  duration?: string | null;
+  /** @nullable */
+  coverLetter?: string | null;
+  status: BidStatus;
+  createdAt: string;
+}
+
+export interface BidInput {
+  amount: number;
+  duration?: string;
+  coverLetter?: string;
+}
+
+export type BidPatchStatus = typeof BidPatchStatus[keyof typeof BidPatchStatus];
+
+
+export const BidPatchStatus = {
+  accepted: 'accepted',
+  rejected: 'rejected',
+} as const;
+
+export interface BidPatch {
+  status: BidPatchStatus;
+}
+
+export type BidWithFreelancerStatus = typeof BidWithFreelancerStatus[keyof typeof BidWithFreelancerStatus];
+
+
+export const BidWithFreelancerStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  rejected: 'rejected',
+} as const;
+
+export interface BidWithFreelancer {
+  id: number;
+  projectId: number;
+  freelancerId: number;
+  freelancerName?: string;
+  freelancerEmail?: string;
+  /** @nullable */
+  freelancerTitle?: string | null;
+  amount: number;
+  /** @nullable */
+  duration?: string | null;
+  /** @nullable */
+  coverLetter?: string | null;
+  status: BidWithFreelancerStatus;
+  createdAt: string;
+}
+
+export type BidWithProjectStatus = typeof BidWithProjectStatus[keyof typeof BidWithProjectStatus];
+
+
+export const BidWithProjectStatus = {
+  pending: 'pending',
+  accepted: 'accepted',
+  rejected: 'rejected',
+} as const;
+
+export interface BidWithProject {
+  id: number;
+  projectId: number;
+  freelancerId: number;
+  amount: number;
+  /** @nullable */
+  duration?: string | null;
+  /** @nullable */
+  coverLetter?: string | null;
+  status: BidWithProjectStatus;
+  projectTitle?: string;
+  projectCategory?: string;
+  projectStatus?: string;
+  createdAt: string;
 }
 

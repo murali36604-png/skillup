@@ -7,6 +7,8 @@ import enrollmentsRouter from "./enrollments";
 import enquiriesRouter from "./enquiries";
 import liveClassesRouter from "./live-classes";
 import dashboardRouter from "./dashboard";
+import freelancerRouter from "./freelancer";
+import projectsRouter from "./projects";
 
 const router: IRouter = Router();
 
@@ -18,5 +20,7 @@ router.use(enrollmentsRouter);
 router.use(enquiriesRouter);
 router.use(liveClassesRouter);
 router.use(dashboardRouter);
+router.use(freelancerRouter);
+router.use(projectsRouter);
 
 export default router;

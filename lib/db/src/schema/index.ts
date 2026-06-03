@@ -3,3 +3,7 @@ export * from "./courses";
 export * from "./enrollments";
 export * from "./enquiries";
 export * from "./live-classes";
+export * from "./freelancer-profiles";
+export * from "./bank-details";
+export * from "./projects";
+export * from "./bids";

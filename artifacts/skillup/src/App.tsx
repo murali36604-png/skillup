@@ -8,6 +8,7 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 import { HomePage } from "@/pages/home";
 import { LoginPage } from "@/pages/login";
+import { SignupPage } from "@/pages/signup";
 import { EnquiryPage } from "@/pages/enquiry";
 
 import { AdminDashboardPage } from "@/pages/admin/dashboard";
@@ -20,10 +21,21 @@ import { AdminLiveClassesPage } from "@/pages/admin/live-classes";
 import { TrainerDashboardPage } from "@/pages/trainer/dashboard";
 import { TrainerCoursesPage } from "@/pages/trainer/courses";
 import { TrainerStudentsPage } from "@/pages/trainer/students";
+
 import { StudentDashboardPage } from "@/pages/student/dashboard";
 import { StudentCoursesPage } from "@/pages/student/courses";
 import { StudentMyCoursesPage } from "@/pages/student/my-courses";
 import { StudentLiveClassesPage } from "@/pages/student/live-classes";
+
+import { FreelancerDashboardPage } from "@/pages/freelancer/dashboard";
+import { FreelancerProjectsPage } from "@/pages/freelancer/projects";
+import { FreelancerMyBidsPage } from "@/pages/freelancer/my-bids";
+import { FreelancerProfilePage } from "@/pages/freelancer/profile";
+import { FreelancerBankDetailsPage } from "@/pages/freelancer/bank-details";
+
+import { ClientDashboardPage } from "@/pages/client/dashboard";
+import { ClientPostProjectPage } from "@/pages/client/post-project";
+import { ClientMyProjectsPage } from "@/pages/client/my-projects";
 
 const queryClient = new QueryClient();
 
@@ -46,13 +58,11 @@ function ProtectedRoute({
     );
 
   if (!user) {
-    // If the route requires admin, signal access denied on the login page
     const dest = adminOnly ? "/login?error=access_denied" : "/login";
     return <Redirect to={dest} />;
   }
 
   if (user.role !== allowedRole) {
-    // A non-admin trying to reach an admin page → access denied message
     if (adminOnly && user.role !== "admin") {
       return <Redirect to="/login?error=access_denied" />;
     }
@@ -77,11 +87,13 @@ function PublicRoute({ component: Component }: { component: any }) {
 function Router() {
   return (
     <Switch>
+      {/* Public */}
       <Route path="/" component={() => <PublicRoute component={HomePage} />} />
       <Route path="/login" component={() => <PublicRoute component={LoginPage} />} />
+      <Route path="/signup" component={() => <PublicRoute component={SignupPage} />} />
       <Route path="/enquiry" component={() => <PublicRoute component={EnquiryPage} />} />
 
-      {/* Admin Routes — adminOnly enforces the access-denied redirect */}
+      {/* Admin */}
       <Route path="/admin" component={() => <ProtectedRoute component={AdminDashboardPage} allowedRole="admin" adminOnly />} />
       <Route path="/admin/users" component={() => <ProtectedRoute component={AdminUsersPage} allowedRole="admin" adminOnly />} />
       <Route path="/admin/courses" component={() => <ProtectedRoute component={AdminCoursesPage} allowedRole="admin" adminOnly />} />
@@ -89,17 +101,29 @@ function Router() {
       <Route path="/admin/enquiries" component={() => <ProtectedRoute component={AdminEnquiriesPage} allowedRole="admin" adminOnly />} />
       <Route path="/admin/live-classes" component={() => <ProtectedRoute component={AdminLiveClassesPage} allowedRole="admin" adminOnly />} />
 
-      {/* Trainer Routes */}
+      {/* Trainer */}
       <Route path="/trainer" component={() => <ProtectedRoute component={TrainerDashboardPage} allowedRole="trainer" />} />
       <Route path="/trainer/courses" component={() => <ProtectedRoute component={TrainerCoursesPage} allowedRole="trainer" />} />
       <Route path="/trainer/students" component={() => <ProtectedRoute component={TrainerStudentsPage} allowedRole="trainer" />} />
       <Route path="/trainer/live-classes" component={() => <ProtectedRoute component={AdminLiveClassesPage} allowedRole="trainer" />} />
 
-      {/* Student Routes */}
+      {/* Student */}
       <Route path="/student" component={() => <ProtectedRoute component={StudentDashboardPage} allowedRole="student" />} />
       <Route path="/student/courses" component={() => <ProtectedRoute component={StudentCoursesPage} allowedRole="student" />} />
       <Route path="/student/my-courses" component={() => <ProtectedRoute component={StudentMyCoursesPage} allowedRole="student" />} />
       <Route path="/student/live-classes" component={() => <ProtectedRoute component={StudentLiveClassesPage} allowedRole="student" />} />
+
+      {/* Freelancer */}
+      <Route path="/freelancer" component={() => <ProtectedRoute component={FreelancerDashboardPage} allowedRole="freelancer" />} />
+      <Route path="/freelancer/projects" component={() => <ProtectedRoute component={FreelancerProjectsPage} allowedRole="freelancer" />} />
+      <Route path="/freelancer/my-bids" component={() => <ProtectedRoute component={FreelancerMyBidsPage} allowedRole="freelancer" />} />
+      <Route path="/freelancer/profile" component={() => <ProtectedRoute component={FreelancerProfilePage} allowedRole="freelancer" />} />
+      <Route path="/freelancer/bank-details" component={() => <ProtectedRoute component={FreelancerBankDetailsPage} allowedRole="freelancer" />} />
+
+      {/* Client */}
+      <Route path="/client" component={() => <ProtectedRoute component={ClientDashboardPage} allowedRole="client" />} />
+      <Route path="/client/post-project" component={() => <ProtectedRoute component={ClientPostProjectPage} allowedRole="client" />} />
+      <Route path="/client/my-projects" component={() => <ProtectedRoute component={ClientMyProjectsPage} allowedRole="client" />} />
 
       <Route
         component={() => (
