@@ -7,3 +7,4 @@ export * from "./freelancer-profiles";
 export * from "./bank-details";
 export * from "./projects";
 export * from "./bids";
+export * from "./messages";

@@ -9,6 +9,7 @@ import liveClassesRouter from "./live-classes";
 import dashboardRouter from "./dashboard";
 import freelancerRouter from "./freelancer";
 import projectsRouter from "./projects";
+import messagesRouter from "./messages";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(liveClassesRouter);
 router.use(dashboardRouter);
 router.use(freelancerRouter);
 router.use(projectsRouter);
+router.use(messagesRouter);
 
 export default router;

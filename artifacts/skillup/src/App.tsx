@@ -37,6 +37,8 @@ import { ClientDashboardPage } from "@/pages/client/dashboard";
 import { ClientPostProjectPage } from "@/pages/client/post-project";
 import { ClientMyProjectsPage } from "@/pages/client/my-projects";
 
+import { MessagesPage } from "@/pages/messages";
+
 const queryClient = new QueryClient();
 
 function ProtectedRoute({
@@ -124,6 +126,10 @@ function Router() {
       <Route path="/client" component={() => <ProtectedRoute component={ClientDashboardPage} allowedRole="client" />} />
       <Route path="/client/post-project" component={() => <ProtectedRoute component={ClientPostProjectPage} allowedRole="client" />} />
       <Route path="/client/my-projects" component={() => <ProtectedRoute component={ClientMyProjectsPage} allowedRole="client" />} />
+      <Route path="/client/messages" component={() => <ProtectedRoute component={MessagesPage} allowedRole="client" />} />
+
+      {/* Freelancer messages */}
+      <Route path="/freelancer/messages" component={() => <ProtectedRoute component={MessagesPage} allowedRole="freelancer" />} />
 
       <Route
         component={() => (

@@ -492,3 +492,29 @@ export interface BidWithProject {
   createdAt: string;
 }
 
+export interface Message {
+  id: number;
+  senderId: number;
+  receiverId: number;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface MessageInput {
+  content: string;
+}
+
+export interface Conversation {
+  userId: number;
+  userName: string;
+  userRole: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+}
+
+export interface UnreadCount {
+  count: number;
+}
+

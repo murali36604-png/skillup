@@ -480,6 +480,99 @@ paths:
                 items:
                   $ref: "#/components/schemas/EnrollmentWithCourse"
 
+  # ── Messaging ────────────────────────────────────────────────────────────────
+
+  /messages/conversations:
+    get:
+      operationId: getConversations
+      tags: [messages]
+      summary: Get all conversations for the current user
+      responses:
+        "200":
+          description: Conversations list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+
+  /messages/{userId}:
+    get:
+      operationId: getMessages
+      tags: [messages]
+      summary: Get messages between current user and another user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Messages list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message to another user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  /messages/{userId}/read:
+    post:
+      operationId: markMessagesRead
+      tags: [messages]
+      summary: Mark all messages from a user as read
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /messages/unread-count:
+    get:
+      operationId: getUnreadCount
+      tags: [messages]
+      summary: Get total unread message count
+      responses:
+        "200":
+          description: Unread count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnreadCount"
+
   # ── Freelancer Marketplace ──────────────────────────────────────────────────
 
   /freelancer/profile:
@@ -1318,3 +1411,53 @@ components:
           type: string
         createdAt:
           type: string
+
+    # ── Messaging Schemas ─────────────────────────────────────────────────────
+
+    Message:
+      type: object
+      required: [id, senderId, receiverId, content, isRead, createdAt]
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: integer
+        receiverId:
+          type: integer
+        content:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+
+    Conversation:
+      type: object
+      required: [userId, userName, userRole, lastMessage, lastMessageAt, unreadCount]
+      properties:
+        userId:
+          type: integer
+        userName:
+          type: string
+        userRole:
+          type: string
+        lastMessage:
+          type: string
+        lastMessageAt:
+          type: string
+        unreadCount:
+          type: integer
+
+    UnreadCount:
+      type: object
+      required: [count]
+      properties:
+        count:
+          type: integer

@@ -368,6 +368,70 @@ export const GetMyEnrollmentsResponse = zod.array(GetMyEnrollmentsResponseItem)
 
 
 /**
+ * @summary Get all conversations for the current user
+ */
+export const GetConversationsResponseItem = zod.object({
+  "userId": zod.number(),
+  "userName": zod.string(),
+  "userRole": zod.string(),
+  "lastMessage": zod.string(),
+  "lastMessageAt": zod.string(),
+  "unreadCount": zod.number()
+})
+export const GetConversationsResponse = zod.array(GetConversationsResponseItem)
+
+
+/**
+ * @summary Get messages between current user and another user
+ */
+export const GetMessagesParams = zod.object({
+  "userId": zod.coerce.number()
+})
+
+export const GetMessagesResponseItem = zod.object({
+  "id": zod.number(),
+  "senderId": zod.number(),
+  "receiverId": zod.number(),
+  "content": zod.string(),
+  "isRead": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const GetMessagesResponse = zod.array(GetMessagesResponseItem)
+
+
+/**
+ * @summary Send a message to another user
+ */
+export const SendMessageParams = zod.object({
+  "userId": zod.coerce.number()
+})
+
+export const SendMessageBody = zod.object({
+  "content": zod.string()
+})
+
+
+/**
+ * @summary Mark all messages from a user as read
+ */
+export const MarkMessagesReadParams = zod.object({
+  "userId": zod.coerce.number()
+})
+
+export const MarkMessagesReadResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
+ * @summary Get total unread message count
+ */
+export const GetUnreadCountResponse = zod.object({
+  "count": zod.number()
+})
+
+
+/**
  * @summary Get my freelancer profile
  */
 export const GetFreelancerProfileResponse = zod.object({

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
-import { useLogout } from "@workspace/api-client-react";
+import { useLogout, useGetUnreadCount } from "@workspace/api-client-react";
 import logo from "@assets/skill_up_logo_1780416699830.png";
 import {
   BookOpen, Users, GraduationCap, MessageSquare, Video,
@@ -15,6 +15,10 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const logoutMutation = useLogout();
 
+  const isMarketplace = user?.role === "freelancer" || user?.role === "client";
+  const { data: unreadData } = useGetUnreadCount();
+  const unreadCount = unreadData?.count ?? 0;
+
   const handleLogout = async () => {
     await logoutMutation.mutateAsync();
     authLogout();
@@ -22,7 +26,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
   const role = user?.role || "student";
 
-  const allNavItems: Record<string, { href: string; label: string; icon: any }[]> = {
+  const allNavItems: Record<string, { href: string; label: string; icon: any; badge?: number }[]> = {
     admin: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/users", label: "Users", icon: Users },
@@ -47,6 +51,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       { href: "/freelancer", label: "Dashboard", icon: LayoutDashboard },
       { href: "/freelancer/projects", label: "Browse Projects", icon: Briefcase },
       { href: "/freelancer/my-bids", label: "My Bids", icon: Send },
+      { href: "/freelancer/messages", label: "Messages", icon: MessageSquare, badge: unreadCount },
       { href: "/freelancer/profile", label: "My Profile", icon: User },
       { href: "/freelancer/bank-details", label: "Bank Details", icon: Landmark },
     ],
@@ -54,6 +59,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       { href: "/client", label: "Dashboard", icon: LayoutDashboard },
       { href: "/client/post-project", label: "Post a Project", icon: PlusCircle },
       { href: "/client/my-projects", label: "My Projects", icon: FolderOpen },
+      { href: "/client/messages", label: "Messages", icon: MessageSquare, badge: unreadCount },
     ],
   };
 
@@ -67,10 +73,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
     client: "Client",
   };
 
-  const roleIcon: Record<string, any> = {
-    freelancer: Briefcase,
-    client: Building2,
-  };
+  const roleIcon: Record<string, any> = { freelancer: Briefcase, client: Building2 };
   const RoleIcon = roleIcon[role];
 
   return (
@@ -104,8 +107,13 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="h-4 w-4 shrink-0" />
+                <span className="flex-1">{item.label}</span>
+                {item.badge != null && item.badge > 0 && (
+                  <span className="ml-auto min-w-5 h-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}
